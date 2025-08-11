@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "node server/server.js",
-    "start": "node server/server.js",
-    "build": "echo 'no build script'"
+    "start": "node server/server.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
