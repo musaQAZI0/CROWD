@@ -336,6 +336,415 @@ router.post('/initiate-payout', authenticateToken, async (req, res) => {
   }
 });
 
+// ================== ENHANCED DASHBOARD API (Eventbrite-style) ==================
+
+// Get comprehensive financial dashboard
+router.get('/dashboard', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        console.log(`Getting finance dashboard for user: ${userId}`);
+        
+        const user = await db.getUserById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Get financial summary from existing function
+        const summary = await db.getFinancialSummary(userId);
+        
+        // Get recent payouts
+        const recentPayouts = await db.getPayoutHistory(userId, 1, 5);
+        
+        // Get bank account info
+        const bankAccounts = await db.getUserBankAccounts(userId);
+        const primaryAccount = bankAccounts.find(acc => acc.isPrimary) || bankAccounts[0];
+        
+        // Calculate next payout date (weekly on Mondays)
+        const today = new Date();
+        const nextMonday = new Date(today);
+        const daysUntilMonday = (1 + 7 - today.getDay()) % 7 || 7;
+        nextMonday.setDate(today.getDate() + daysUntilMonday);
+
+        const dashboard = {
+            balances: {
+                available: summary.availableBalance || 0,
+                pending: summary.pendingBalance || 0,
+                totalPaidOut: summary.totalPaidOut || 0,
+                currency: 'USD'
+            },
+            payoutInfo: {
+                nextPayoutDate: nextMonday.toISOString(),
+                schedule: 'weekly',
+                minimumAmount: 1.00,
+                instantPayoutsEnabled: true // Enable Eventbrite 2024 feature
+            },
+            bankAccount: primaryAccount ? {
+                id: primaryAccount.id,
+                bankName: primaryAccount.bankName,
+                accountHolderName: primaryAccount.accountHolderName,
+                lastFour: primaryAccount.accountNumber ? 
+                    primaryAccount.accountNumber.toString().slice(-4) : '****',
+                isVerified: true
+            } : null,
+            recentPayouts: recentPayouts.payouts || [],
+            monthlyStats: {
+                revenue: summary.monthlyRevenue || 0,
+                fees: summary.monthlyFees || 0,
+                payouts: summary.monthlyPayouts || 0
+            }
+        };
+
+        res.json({
+            success: true,
+            dashboard: dashboard
+        });
+
+    } catch (error) {
+        console.error('Error getting finance dashboard:', error);
+        res.status(500).json({ 
+            error: 'Failed to retrieve finance dashboard',
+            message: process.env.NODE_ENV === 'development' ? error.message : 'Server error'
+        });
+    }
+});
+
+// ================== INSTANT PAYOUTS (Eventbrite 2024 Feature) ==================
+
+// Request instant payout
+router.post('/payouts/instant', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { amount, bankAccountId } = req.body;
+
+        console.log(`Requesting instant payout for user: ${userId}, amount: ${amount}`);
+
+        // Validate request
+        if (!amount || amount <= 0) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Invalid payout amount'
+            });
+        }
+
+        // Get financial summary to check available balance
+        const summary = await db.getFinancialSummary(userId);
+        const availableBalance = summary.availableBalance || 0;
+
+        if (amount > availableBalance) {
+            return res.status(400).json({ 
+                success: false,
+                error: 'Insufficient balance',
+                availableBalance: availableBalance
+            });
+        }
+
+        // Get bank account
+        let bankAccount;
+        if (bankAccountId) {
+            bankAccount = await db.getBankAccountById(bankAccountId);
+            if (!bankAccount || bankAccount.userId !== userId) {
+                return res.status(400).json({ 
+                    success: false,
+                    error: 'Invalid bank account'
+                });
+            }
+        } else {
+            // Use primary account
+            const bankAccounts = await db.getUserBankAccounts(userId);
+            bankAccount = bankAccounts.find(acc => acc.isPrimary) || bankAccounts[0];
+            if (!bankAccount) {
+                return res.status(400).json({ 
+                    success: false,
+                    error: 'No bank account found. Please add a bank account first.'
+                });
+            }
+        }
+
+        // Calculate instant payout fee (Eventbrite charges $0.25)
+        const instantPayoutFee = 0.25;
+        const netAmount = amount - instantPayoutFee;
+
+        if (netAmount <= 0) {
+            return res.status(400).json({ 
+                success: false,
+                error: 'Amount too small after fee deduction'
+            });
+        }
+
+        // Create payout record
+        const payoutId = 'instant_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        const payout = {
+            id: payoutId,
+            userId: userId,
+            bankAccountId: bankAccount.id,
+            type: 'instant',
+            amount: netAmount,
+            grossAmount: amount,
+            fee: instantPayoutFee,
+            status: 'processing',
+            requestedAt: new Date().toISOString(),
+            estimatedArrival: 'Within minutes',
+            currency: 'USD'
+        };
+
+        // In a real implementation, this would integrate with Stripe
+        // For now, we'll simulate the process
+        const result = await db.createInstantPayout(payout);
+
+        if (result.success) {
+            // Simulate processing delay
+            setTimeout(async () => {
+                try {
+                    await db.updatePayoutStatus(payoutId, 'completed', {
+                        completedAt: new Date().toISOString(),
+                        stripePayoutId: 'po_' + Math.random().toString(36).substr(2, 24)
+                    });
+                    console.log(`Instant payout ${payoutId} completed`);
+                } catch (err) {
+                    console.error('Error completing instant payout:', err);
+                }
+            }, 2000);
+
+            res.json({
+                success: true,
+                message: 'Instant payout requested successfully',
+                payout: {
+                    id: payout.id,
+                    netAmount: netAmount,
+                    fee: instantPayoutFee,
+                    status: 'processing',
+                    estimatedArrival: 'Within minutes',
+                    bankAccount: {
+                        bankName: bankAccount.bankName,
+                        lastFour: bankAccount.accountNumber ? 
+                            bankAccount.accountNumber.toString().slice(-4) : '****'
+                    }
+                }
+            });
+        } else {
+            res.status(500).json({
+                success: false,
+                error: result.error || 'Failed to process instant payout'
+            });
+        }
+
+    } catch (error) {
+        console.error('Error processing instant payout:', error);
+        res.status(500).json({ 
+            success: false,
+            error: 'Failed to process instant payout',
+            message: process.env.NODE_ENV === 'development' ? error.message : 'Server error'
+        });
+    }
+});
+
+// Get payout eligibility (for instant payouts)
+router.get('/payouts/eligibility', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        
+        // Check if user has verified bank account
+        const bankAccounts = await db.getUserBankAccounts(userId);
+        const hasVerifiedAccount = bankAccounts.some(acc => acc.isActive);
+        
+        // Get financial summary
+        const summary = await db.getFinancialSummary(userId);
+        const availableBalance = summary.availableBalance || 0;
+        
+        // Check if user has received at least one successful payout (72+ hours ago)
+        const payouts = await db.getPayoutHistory(userId, 1, 10);
+        const oldSuccessfulPayout = payouts.payouts?.find(p => 
+            p.status === 'completed' && 
+            new Date(p.completedAt) < new Date(Date.now() - 72 * 60 * 60 * 1000)
+        );
+        
+        const isEligible = hasVerifiedAccount && availableBalance > 0 && oldSuccessfulPayout;
+        
+        res.json({
+            success: true,
+            eligibility: {
+                eligible: isEligible,
+                availableBalance: availableBalance,
+                minimumAmount: 1.00,
+                instantFee: 0.25,
+                requirements: {
+                    hasVerifiedBankAccount: hasVerifiedAccount,
+                    hasAvailableBalance: availableBalance > 0,
+                    hasPreviousSuccessfulPayout: !!oldSuccessfulPayout,
+                    accountAgeRequirement: !!oldSuccessfulPayout
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('Error checking payout eligibility:', error);
+        res.status(500).json({ 
+            success: false,
+            error: 'Failed to check eligibility'
+        });
+    }
+});
+
+// ================== TAX INFORMATION ==================
+
+// Get tax information
+router.get('/tax-information', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const taxInfo = await db.getTaxInformation(userId);
+        
+        res.json({
+            success: true,
+            taxInfo: taxInfo || { status: 'incomplete' }
+        });
+
+    } catch (error) {
+        console.error('Error getting tax information:', error);
+        res.status(500).json({ 
+            success: false,
+            error: 'Failed to retrieve tax information'
+        });
+    }
+});
+
+// Update tax information
+router.put('/tax-information', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const taxData = req.body;
+        
+        // Encrypt sensitive fields
+        const sensitiveFields = ['ssn', 'ein', 'taxId', 'vatNumber'];
+        const encryptedTaxData = { ...taxData };
+        
+        sensitiveFields.forEach(field => {
+            if (taxData[field]) {
+                encryptedTaxData[field] = encrypt(taxData[field]);
+            }
+        });
+        
+        const result = await db.updateTaxInformation(userId, {
+            ...encryptedTaxData,
+            updatedAt: new Date().toISOString(),
+            status: 'complete'
+        });
+        
+        if (result.success) {
+            res.json({
+                success: true,
+                message: 'Tax information updated successfully',
+                status: 'complete'
+            });
+        } else {
+            res.status(500).json({
+                success: false,
+                error: result.error || 'Failed to update tax information'
+            });
+        }
+
+    } catch (error) {
+        console.error('Error updating tax information:', error);
+        res.status(500).json({ 
+            success: false,
+            error: 'Failed to update tax information'
+        });
+    }
+});
+
+// ================== TRANSACTION HISTORY ==================
+
+// Get detailed transaction history
+router.get('/transactions', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { 
+            type, 
+            status, 
+            dateRange, 
+            eventId,
+            page = 1, 
+            limit = 50 
+        } = req.query;
+
+        console.log(`Getting transactions for user: ${userId}`);
+
+        // This would need to be implemented in the database layer
+        const transactions = await db.getTransactionHistory(userId, {
+            type,
+            status,
+            dateRange,
+            eventId,
+            page: parseInt(page),
+            limit: parseInt(limit)
+        });
+
+        res.json({
+            success: true,
+            transactions: transactions.transactions || [],
+            pagination: transactions.pagination || {
+                total: 0,
+                page: 1,
+                limit: 50,
+                hasMore: false
+            }
+        });
+
+    } catch (error) {
+        console.error('Error getting transactions:', error);
+        res.status(500).json({ 
+            success: false,
+            error: 'Failed to retrieve transactions'
+        });
+    }
+});
+
+// Export financial data
+router.get('/export/:type', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { type } = req.params;
+        const { dateRange, format = 'csv' } = req.query;
+
+        console.log(`Exporting ${type} data for user: ${userId}`);
+
+        let exportData;
+        switch (type) {
+            case 'payouts':
+                exportData = await db.exportPayoutData(userId, { dateRange, format });
+                break;
+            case 'transactions':
+                exportData = await db.exportTransactionData(userId, { dateRange, format });
+                break;
+            case 'tax-report':
+                exportData = await db.exportTaxReport(userId, { dateRange, format });
+                break;
+            default:
+                return res.status(400).json({
+                    success: false,
+                    error: 'Invalid export type'
+                });
+        }
+
+        if (exportData.success) {
+            res.setHeader('Content-Type', 'application/octet-stream');
+            res.setHeader('Content-Disposition', `attachment; filename="${exportData.filename}"`);
+            res.send(exportData.data);
+        } else {
+            res.status(500).json({
+                success: false,
+                error: exportData.error || 'Export failed'
+            });
+        }
+
+    } catch (error) {
+        console.error('Error exporting data:', error);
+        res.status(500).json({ 
+            success: false,
+            error: 'Failed to export data'
+        });
+    }
+});
+
 router.get('/supported-countries', (req, res) => {
   const countries = Object.keys(BANK_ACCOUNT_FIELDS)
     .filter(country => country !== 'DEFAULT')

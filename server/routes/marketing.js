@@ -2373,4 +2373,357 @@ router.get('/dashboard', authenticateToken, async (req, res) => {
     }
 });
 
+// Save campaign as draft (for ad campaigns page)
+router.post('/campaigns/draft', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const campaignData = req.body;
+        
+        console.log(`Saving campaign draft for user: ${userId}`);
+        
+        const user = await db.getUserById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        // Create campaign with Facebook/Instagram ad structure
+        const draftCampaign = {
+            id: 'campaign_' + Math.random().toString(36).substr(2, 9) + Date.now(),
+            type: 'facebook_instagram_ads',
+            status: 'draft',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            
+            // Event information
+            event: {
+                id: campaignData.event?.id,
+                title: campaignData.event?.title,
+                date: campaignData.event?.date
+            },
+            
+            // User information
+            user: {
+                id: campaignData.user?.id || userId,
+                name: campaignData.user?.name,
+                email: campaignData.user?.email
+            },
+            
+            // Audience targeting
+            audience: {
+                sources: campaignData.audience?.sources || [],
+                estimatedReach: campaignData.audience?.estimatedReach || { min: 0, max: 0 },
+                smartTargeting: campaignData.audience?.smartTargeting || true
+            },
+            
+            // Budget settings
+            budget: {
+                type: campaignData.budget?.type || 'daily',
+                amount: campaignData.budget?.amount || 20,
+                currency: campaignData.budget?.currency || 'USD'
+            },
+            
+            // Creative content
+            creative: {
+                headline: campaignData.creative?.headline || '',
+                description: campaignData.creative?.description || '',
+                callToAction: campaignData.creative?.callToAction || 'Get Tickets',
+                imageFile: null // File uploads would be handled separately
+            },
+            
+            // Platform targeting
+            targeting: {
+                platforms: campaignData.targeting?.platforms || ['facebook', 'instagram'],
+                placements: campaignData.targeting?.placements || ['feed'],
+                optimization: campaignData.targeting?.optimization || 'link_clicks'
+            }
+        };
+        
+        // Initialize campaigns array if it doesn't exist
+        if (!user.adCampaigns) {
+            user.adCampaigns = [];
+        }
+        
+        // Add draft campaign
+        user.adCampaigns.push(draftCampaign);
+        user.updatedAt = new Date().toISOString();
+        
+        // Update user in database
+        await db.updateUser(userId, { 
+            adCampaigns: user.adCampaigns,
+            updatedAt: user.updatedAt
+        });
+        
+        res.json({
+            success: true,
+            message: 'Campaign draft saved successfully',
+            campaign: draftCampaign
+        });
+        
+    } catch (error) {
+        console.error('Error saving campaign draft:', error);
+        res.status(500).json({ 
+            error: 'Failed to save campaign draft',
+            message: process.env.NODE_ENV === 'development' ? error.message : 'Server error'
+        });
+    }
+});
+
+// Launch campaign (for ad campaigns page)
+router.post('/campaigns/launch', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const campaignData = req.body;
+        
+        console.log(`Launching campaign for user: ${userId}`);
+        
+        const user = await db.getUserById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        // Create launched campaign with full structure
+        const launchedCampaign = {
+            id: 'campaign_' + Math.random().toString(36).substr(2, 9) + Date.now(),
+            type: 'facebook_instagram_ads',
+            status: 'active',
+            createdAt: campaignData.createdAt || new Date().toISOString(),
+            launchedAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            
+            // Event information
+            event: campaignData.event,
+            user: campaignData.user,
+            audience: campaignData.audience,
+            budget: campaignData.budget,
+            creative: campaignData.creative,
+            targeting: campaignData.targeting,
+            
+            // Performance tracking (initialized)
+            performance: {
+                impressions: 0,
+                clicks: 0,
+                spend: 0,
+                conversions: 0,
+                ctr: 0,
+                cpc: 0,
+                cpm: 0,
+                lastUpdated: new Date().toISOString()
+            },
+            
+            // Platform-specific data
+            platforms: {
+                facebook: {
+                    campaign_id: null, // Would be set after actual Facebook API call
+                    status: 'pending_review'
+                },
+                instagram: {
+                    campaign_id: null,
+                    status: 'pending_review'
+                }
+            }
+        };
+        
+        // Initialize campaigns array if it doesn't exist
+        if (!user.adCampaigns) {
+            user.adCampaigns = [];
+        }
+        
+        // Add launched campaign
+        user.adCampaigns.push(launchedCampaign);
+        user.updatedAt = new Date().toISOString();
+        
+        // Update user in database
+        await db.updateUser(userId, { 
+            adCampaigns: user.adCampaigns,
+            updatedAt: user.updatedAt
+        });
+        
+        // In a real implementation, this would make calls to Facebook/Instagram APIs
+        // For now, we'll simulate successful launch
+        
+        res.json({
+            success: true,
+            message: 'Campaign launched successfully',
+            campaign: launchedCampaign,
+            next_steps: [
+                'Your ads are now being reviewed by Facebook/Instagram',
+                'You will receive email notifications about campaign status',
+                'Performance data will be available within 24 hours'
+            ]
+        });
+        
+    } catch (error) {
+        console.error('Error launching campaign:', error);
+        res.status(500).json({ 
+            error: 'Failed to launch campaign',
+            message: process.env.NODE_ENV === 'development' ? error.message : 'Server error'
+        });
+    }
+});
+
+// Get audience suggestions for an event
+router.get('/campaigns/audience-suggestions/:eventId', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const eventId = req.params.eventId;
+        
+        console.log(`Getting audience suggestions for event ${eventId}, user: ${userId}`);
+        
+        // In a real implementation, this would analyze the event and user data
+        // For now, return smart suggestions based on event type and user history
+        const suggestions = [
+            {
+                id: 'website_visitors',
+                name: 'Website visitors and engaged users',
+                description: 'People who visited your event page or engaged with your content',
+                estimated_size: 8500,
+                type: 'custom_audience',
+                confidence: 'high'
+            },
+            {
+                id: 'past_attendees',
+                name: 'Past attendees of similar events',
+                description: 'People who have attended events in your category',
+                estimated_size: 12300,
+                type: 'lookalike_audience',
+                confidence: 'high'
+            },
+            {
+                id: 'email_subscribers',
+                name: 'Email subscribers',
+                description: 'People subscribed to your email lists',
+                estimated_size: 3200,
+                type: 'custom_audience',
+                confidence: 'medium'
+            },
+            {
+                id: 'facebook_fans',
+                name: 'Facebook page fans and similar audiences',
+                description: 'People who like your Facebook page and similar users',
+                estimated_size: 25600,
+                type: 'interests_audience',
+                confidence: 'medium'
+            }
+        ];
+        
+        res.json({
+            success: true,
+            event_id: eventId,
+            suggestions: suggestions,
+            total_estimated_reach: suggestions.reduce((sum, s) => sum + s.estimated_size, 0)
+        });
+        
+    } catch (error) {
+        console.error('Error getting audience suggestions:', error);
+        res.status(500).json({ 
+            error: 'Failed to get audience suggestions',
+            message: process.env.NODE_ENV === 'development' ? error.message : 'Server error'
+        });
+    }
+});
+
+// Get budget estimates
+router.post('/campaigns/estimates', authenticateToken, async (req, res) => {
+    try {
+        const { eventId, audienceData, budget } = req.body;
+        
+        console.log(`Getting budget estimates for budget: ${budget}`);
+        
+        // Calculate estimates based on budget and audience size
+        const dailyBudget = typeof budget === 'object' ? budget.amount : budget;
+        const audienceSize = audienceData?.estimatedReach?.max || 50000;
+        
+        // Rough estimation formulas (would be more sophisticated in real implementation)
+        const estimatedReach = {
+            min: Math.floor(dailyBudget * 100),
+            max: Math.floor(dailyBudget * 280)
+        };
+        
+        const estimatedClicks = {
+            min: Math.floor(dailyBudget * 2),
+            max: Math.floor(dailyBudget * 5.6)
+        };
+        
+        const estimatedCPC = {
+            min: 0.18,
+            max: 0.48
+        };
+        
+        const estimatedTicketSales = {
+            min: Math.floor(estimatedClicks.min * 0.2),
+            max: Math.floor(estimatedClicks.max * 0.2)
+        };
+        
+        res.json({
+            success: true,
+            estimates: {
+                daily_budget: dailyBudget,
+                reach: estimatedReach,
+                clicks: estimatedClicks,
+                cost_per_click: estimatedCPC,
+                ticket_sales: estimatedTicketSales,
+                audience_size: audienceSize
+            },
+            recommendations: [
+                dailyBudget < 20 ? 'Consider increasing budget to $20+ for better performance' : null,
+                audienceSize < 10000 ? 'Try expanding your audience for better reach' : null
+            ].filter(Boolean)
+        });
+        
+    } catch (error) {
+        console.error('Error getting budget estimates:', error);
+        res.status(500).json({ 
+            error: 'Failed to get budget estimates',
+            message: process.env.NODE_ENV === 'development' ? error.message : 'Server error'
+        });
+    }
+});
+
+// Generate ad variations
+router.post('/campaigns/generate-variations', authenticateToken, async (req, res) => {
+    try {
+        const { eventData, baseCreative } = req.body;
+        
+        console.log(`Generating ad variations for event: ${eventData?.title}`);
+        
+        // Generate variations based on the base creative
+        const variations = [
+            {
+                id: 'variation_1',
+                headline: baseCreative.headline,
+                description: baseCreative.description,
+                call_to_action: baseCreative.callToAction,
+                type: 'original'
+            },
+            {
+                id: 'variation_2',
+                headline: `Don't Miss Out: ${baseCreative.headline}`,
+                description: `Limited spots available! ${baseCreative.description}`,
+                call_to_action: 'Register Now',
+                type: 'urgency_focused'
+            },
+            {
+                id: 'variation_3',
+                headline: `Join Us: ${eventData?.title || baseCreative.headline}`,
+                description: `Be part of something amazing. ${baseCreative.description}`,
+                call_to_action: 'Learn More',
+                type: 'community_focused'
+            }
+        ];
+        
+        res.json({
+            success: true,
+            variations: variations,
+            recommendation: 'Test multiple variations to find the best performing ad'
+        });
+        
+    } catch (error) {
+        console.error('Error generating ad variations:', error);
+        res.status(500).json({ 
+            error: 'Failed to generate ad variations',
+            message: process.env.NODE_ENV === 'development' ? error.message : 'Server error'
+        });
+    }
+});
+
 module.exports = router;

@@ -2,9 +2,18 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGODB_URI || 'mongodb+srv://jalalsherazi575:Ri7OnSoE9DOo5wqp@crowd.rmytvx2.mongodb.net/?retryWrites=true&w=majority&appName=CROWD';
+    const mongoURI = process.env.MONGODB_URI;
     
-    await mongoose.connect(mongoURI);
+    if (!mongoURI) {
+      throw new Error('MONGODB_URI environment variable is not set');
+    }
+    
+    await mongoose.connect(mongoURI, {
+      serverSelectionTimeoutMS: 30000,
+      connectTimeoutMS: 30000,
+      socketTimeoutMS: 30000,
+      maxPoolSize: 10
+    });
     
     console.log('MongoDB connected successfully');
   } catch (error) {

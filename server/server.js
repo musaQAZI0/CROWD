@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -93,6 +94,15 @@ app.use('/api/finance', financeRoutes);
 const appsRoutes = require('./routes/apps');
 app.use('/api/apps', appsRoutes);
 
+const collectionsRoutes = require('./routes/collections');
+app.use('/api/collections', collectionsRoutes);
+
+const monetizeRoutes = require('./routes/monetize');
+app.use('/api/monetize', monetizeRoutes);
+
+const eventsRoutes = require('./routes/events');
+app.use('/api/events', eventsRoutes);
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
@@ -123,7 +133,11 @@ app.use((error, req, res, next) => {
 });
 
 app.listen(PORT, async () => {
-  await connectDB();
+  if (process.env.USE_MONGODB === 'true') {
+    await connectDB();
+  } else {
+    console.log('Using JSON file storage (MongoDB disabled)');
+  }
   console.log(`Server running on port ${PORT}`);
   console.log(`Frontend available at: http://localhost:${PORT}`);
   console.log(`API available at: http://localhost:${PORT}/api`);

@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Likes - Crowd</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="js/data-manager.js"></script>
+    <script src="js/auth-api.js"></script>
+    <style>
+        .likes-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .likes-header {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+        
+        .likes-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+        
+        .user-profile-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .user-avatar-large {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #ff5722 0%, #e64a19 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(255, 87, 34, 0.3);
+        }
+        
+        .user-details {
+            text-align: left;
+        }
+        
+        .user-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0 0 0.5rem 0;
+        }
+        
+        .user-email {
+            color: #6b7280;
+            font-size: 1rem;
+            margin: 0 0 1rem 0;
+        }
+        
+        .user-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #ff5722;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .likes-content {
+            margin-top: 2rem;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .likes-count {
+            color: #6b7280;
+            font-size: 1rem;
+        }
+        
+        .likes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .liked-event {
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .liked-event:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .event-image {
+            height: 220px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .event-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #ff5722;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .unlike-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #ef4444;
+            transition: all 0.2s;
+            backdrop-filter: blur(8px);
+        }
+        
+        .unlike-btn:hover {
+            background: white;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+        
+        .event-details {
+            padding: 20px;
+        }
+        
+        .event-date {
+            color: #f97316;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .event-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1f2937;
+            line-height: 1.4;
+        }
+        
+        .event-location {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .event-price {
+            color: #1f2937;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .event-footer {
+            padding: 0 20px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .view-event-btn {
+            background: #ff5722;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .view-event-btn:hover {
+            background: #e64a19;
+        }
+        
+        .empty-likes {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: #f9fafb;
+            border-radius: 16px;
+            margin-top: 2rem;
+        }
+        
+        .empty-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 48px;
+            color: #ef4444;
+        }
+        
+        .empty-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-description {
+            color: #6b7280;
+            margin-bottom: 2rem;
+            font-size: 1.125rem;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .browse-events-btn {
+            background: #ff5722;
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+        
+        .browse-events-btn:hover {
+            background: #e64a19;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 87, 34, 0.3);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+        
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #ff5722;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: #6b7280;
+            font-size: 1.125rem;
+        }
+        
+        .back-nav {
+            margin-bottom: 2rem;
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 0;
+            transition: color 0.2s;
+        }
+        
+        .back-btn:hover {
+            color: #ff5722;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            color: #6b7280;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background: #ff5722;
+            color: white;
+            border-color: #ff5722;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 10000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .notification.error {
+            background: #f44336;
+        }
+        
+        .notification.warning {
+            background: #ff9800;
+        }
+        
+        .notification.info {
+            background: #2196f3;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .likes-container {
+                padding: 1rem;
+            }
+            
+            .likes-title {
+                font-size: 2rem;
+            }
+            
+            .user-profile-section {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .user-details {
+                text-align: center;
+            }
+            
+            .user-stats {
+                justify-content: center;
+            }
+            
+            .likes-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+        
+        /* Animation for liked events */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .liked-event {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+        
+        .liked-event:nth-child(1) { animation-delay: 0.1s; }
+        .liked-event:nth-child(2) { animation-delay: 0.2s; }
+        .liked-event:nth-child(3) { animation-delay: 0.3s; }
+        .liked-event:nth-child(4) { animation-delay: 0.4s; }
+        .liked-event:nth-child(5) { animation-delay: 0.5s; }
+        .liked-event:nth-child(6) { animation-delay: 0.6s; }
+
+        /* Header and Dropdown Styles - copied from index.html */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff5722;
+            text-decoration: none;
+        }
+
+        .search-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            max-width: 500px;
+            margin: 0 2rem;
+        }
+
+        .search-input,
+        .location-input {
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-input {
+            flex: 2;
+        }
+
+        .location-input {
+            flex: 1;
+        }
+
+        .search-input:focus,
+        .location-input:focus {
+            border-color: #ff5722;
+        }
+
+        .search-btn {
+            padding: 12px 16px;
+            background: #ff5722;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #374151;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: #ff5722;
+        }
+
+        .nav-links a.current {
+            color: #ff5722;
+            font-weight: 600;
+        }
+
+        /* User Profile Dropdown Styles */
+        .user-profile-container {
+            position: relative;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: 1px solid #e5e7eb;
+        }
+
+        .user-info:hover {
+            background: #e9ecef;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 280px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+            margin-top: 8px;
+        }
+
+        .profile-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: #ff5722;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 2px;
+        }
+
+        .user-email {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #e5e7eb;
+            margin: 8px 0;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #374151;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background: #f8f9fa;
+        }
+
+        .dropdown-item.current {
+            background: #fff7ed;
+            color: #ff5722;
+        }
+
+        .dropdown-icon {
+            width: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .ticket-count {
+            color: #6b7280;
+            font-size: 14px;
+            margin-left: auto;
+        }
+
+        .logout-item {
+            color: #dc2626;
+            border-top: 1px solid #e5e7eb;
+            margin-top: 8px;
+        }
+
+        .logout-item:hover {
+            background: #fef2f2;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .search-section {
+                margin: 0;
+                max-width: 100%;
+            }
+
+            .profile-dropdown {
+                width: 260px;
+                right: -20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <a href="index.html" class="logo">crowd</a>
+
+            <div class="search-section">
+                <input type="text" class="search-input" placeholder="Search events">
+                <input type="text" class="location-input" placeholder="Punjab" value="Punjab">
+                <button class="search-btn">🔍</button>
+            </div>
+
+            <!-- Logged Out Navigation -->
+            <div class="nav-links nav-logged-out">
+                <a href="contact_sales.html" class="contact-sales-link">Contact Sales</a>
+                <a href="login.html">Create Events</a>
+                <a href="Help_center.html">Help Center ▾</a>
+                <a href="login.html">Find my tickets</a>
+                <a href="login.html">Log In</a>
+                <a href="signup.html">Sign Up</a>
+            </div>
+
+            <!-- Logged In Navigation -->
+            <div class="nav-links nav-logged-in" style="display: none;">
+                <a href="event_create.html" onclick="handleCreateEvent(event)">+ Create an event</a>
+                <a href="likes.html" class="current">♡ Likes</a>
+                <a href="tickets-profile.html">🎫 Tickets</a>
+                <div class="user-profile-container">
+                    <div class="user-info" onclick="toggleProfileDropdown()">
+                        👤 <span id="userEmailDisplay"></span> ▼
+                    </div>
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="dropdown-header">
+                            <div class="user-avatar">👤</div>
+                            <div class="user-details">
+                                <div class="user-name" id="dropdownUserName">User Name</div>
+                                <div class="user-email" id="dropdownUserEmail">user@email.com</div>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="dashboard-home.html" class="dropdown-item">
+                            <span class="dropdown-icon">🏠</span>
+                            Browse events
+                        </a>
+                        <a href="event_create.html" class="dropdown-item" onclick="handleCreateEvent(event)">
+                            <span class="dropdown-icon">📅</span>
+                            Create an event
+                        </a>
+                        <a href="tickets-profile.html" class="dropdown-item">
+                            <span class="dropdown-icon">🎫</span>
+                            Tickets <span class="ticket-count">(0)</span>
+                        </a>
+                        <a href="likes.html" class="dropdown-item current">
+                            <span class="dropdown-icon">❤️</span>
+                            Liked
+                        </a>
+                        <a href="dashboard-home.html" class="dropdown-item">
+                            <span class="dropdown-icon">👥</span>
+                            Following
+                        </a>
+                        <a href="dashboard-home.html" class="dropdown-item">
+                            <span class="dropdown-icon">⭐</span>
+                            Interests
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="dashboard-home.html" class="dropdown-item">
+                            <span class="dropdown-icon">⚙️</span>
+                            Account settings
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item logout-item" onclick="logout()">
+                            <span class="dropdown-icon">🚪</span>
+                            Log out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="likes-container">
+        <div class="back-nav">
+            <a href="index.html" class="back-btn">← Back to Home</a>
+        </div>
+
+        <div class="likes-header">
+            <h1 class="likes-title">My Liked Events</h1>
+            
+            <!-- User Profile Section -->
+            <div class="user-profile-section" id="userProfileSection" style="display: none;">
+                <div class="user-avatar-large" id="profileAvatarLarge">U</div>
+                <div class="user-details">
+                    <h2 class="user-name" id="profileNameLarge">User Name</h2>
+                    <p class="user-email" id="profileEmailLarge">user@email.com</p>
+                    <div class="user-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="likesCountStat">0</div>
+                            <div class="stat-label">Liked Events</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="ticketsCountStat">0</div>
+                            <div class="stat-label">Tickets</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="eventsAttendedStat">0</div>
+                            <div class="stat-label">Events Attended</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading" id="loadingState" style="display: none;">
+            <div class="spinner"></div>
+            <p class="loading-text">Loading your liked events...</p>
+        </div>
+
+        <!-- Likes Content -->
+        <div class="likes-content" id="likesContent" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">Your Liked Events</h2>
+                <span class="likes-count" id="likesCountDisplay">0 events</span>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">All Events</button>
+                <button class="filter-btn" data-filter="upcoming">Upcoming</button>
+                <button class="filter-btn" data-filter="music">Music</button>
+                <button class="filter-btn" data-filter="food">Food & Drink</button>
+                <button class="filter-btn" data-filter="tech">Technology</button>
+                <button class="filter-btn" data-filter="art">Arts</button>
+            </div>
+
+            <!-- Liked Events Grid -->
+            <div class="likes-grid" id="likesGrid">
+                <!-- Liked events will be populated here -->
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-likes" id="emptyState" style="display: none;">
+            <div class="empty-icon">💔</div>
+            <h2 class="empty-title">No liked events yet</h2>
+            <p class="empty-description">Start exploring events and like the ones that interest you! You'll see all your favorite events here.</p>
+            <a href="index.html" class="browse-events-btn">Browse Events</a>
+        </div>
+    </main>
+
+    <script>
+        let currentUser = null;
+        let likedEvents = [];
+        let currentFilter = 'all';
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            await checkAuthentication();
+            await loadLikedEvents();
+            initializeFilters();
+        });
+
+        // Check if user is authenticated
+        async function checkAuthentication() {
+            try {
+                if (!window.authAPI || !window.authAPI.isAuthenticated()) {
+                    showNotification('Please log in to view your liked events', 'warning');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                    return;
+                }
+
+                currentUser = await window.authAPI.getCurrentUser();
+                if (!currentUser) {
+                    throw new Error('Unable to get user data');
+                }
+
+                updateUserProfile(currentUser);
+                showLoggedInUI(currentUser);
+                console.log('User authenticated:', currentUser.email);
+
+            } catch (error) {
+                console.error('Authentication error:', error);
+                showNotification('Authentication error. Please log in again.', 'error');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            }
+        }
+
+        // Update user profile display
+        function updateUserProfile(user) {
+            const profileSection = document.getElementById('userProfileSection');
+            const profileAvatarLarge = document.getElementById('profileAvatarLarge');
+            const profileNameLarge = document.getElementById('profileNameLarge');
+            const profileEmailLarge = document.getElementById('profileEmailLarge');
+            const userEmailDisplay = document.getElementById('userEmailDisplay');
+            const dropdownUserName = document.getElementById('dropdownUserName');
+            const dropdownUserEmail = document.getElementById('dropdownUserEmail');
+
+            if (user) {
+                // Show user profile section
+                profileSection.style.display = 'flex';
+                
+                // Update profile info
+                const displayName = user.name || user.firstName || user.email.split('@')[0];
+                const initials = displayName.charAt(0).toUpperCase();
+                
+                profileAvatarLarge.textContent = initials;
+                profileNameLarge.textContent = displayName;
+                profileEmailLarge.textContent = user.email;
+                
+                // Update header
+                if (userEmailDisplay) userEmailDisplay.textContent = user.email;
+                if (dropdownUserName) dropdownUserName.textContent = displayName;
+                if (dropdownUserEmail) dropdownUserEmail.textContent = user.email;
+
+                // Update stats (mock data for now)
+                document.getElementById('ticketsCountStat').textContent = '2';
+                document.getElementById('eventsAttendedStat').textContent = '5';
+            }
+        }
+
+        // Show logged-in UI
+        function showLoggedInUI(user) {
+            // Hide logged-out elements
+            document.querySelector('.nav-logged-out').style.display = 'none';
+
+            // Show logged-in elements
+            document.querySelector('.nav-logged-in').style.display = 'flex';
+
+            // Update user displays
+            document.getElementById('userEmailDisplay').textContent = user.email;
+            document.getElementById('dropdownUserEmail').textContent = user.email;
+            document.getElementById('dropdownUserName').textContent = user.name || user.firstName || user.email.split('@')[0];
+
+            console.log('User is logged in:', user.email);
+        }
+
+        // Show logged-out UI
+        function showLoggedOutUI() {
+            // Show logged-out elements
+            document.querySelector('.nav-logged-out').style.display = 'flex';
+
+            // Hide logged-in elements
+            document.querySelector('.nav-logged-in').style.display = 'none';
+
+            console.log('User is logged out');
+        }
+
+        // Load liked events from backend
+        async function loadLikedEvents() {
+            const loadingState = document.getElementById('loadingState');
+            const likesContent = document.getElementById('likesContent');
+            const emptyState = document.getElementById('emptyState');
+
+            try {
+                loadingState.style.display = 'block';
+                likesContent.style.display = 'none';
+                emptyState.style.display = 'none';
+
+                // Make API call to get user's liked events
+                const response = await fetch('/api/users/likes', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load liked events');
+                }
+
+                const data = await response.json();
+                likedEvents = data.likedEvents || [];
+
+                loadingState.style.display = 'none';
+
+                // Update likes count stats
+                document.getElementById('likesCountStat').textContent = likedEvents.length;
+                document.getElementById('likesCountDisplay').textContent = `${likedEvents.length} event${likedEvents.length !== 1 ? 's' : ''}`;
+
+                if (likedEvents.length === 0) {
+                    emptyState.style.display = 'block';
+                } else {
+                    likesContent.style.display = 'block';
+                    renderLikedEvents();
+                }
+
+            } catch (error) {
+                console.error('Error loading liked events:', error);
+                loadingState.style.display = 'none';
+                
+                // Show sample data for demo purposes
+                showSampleLikedEvents();
+            }
+        }
+
+        // Show sample liked events for demo
+        function showSampleLikedEvents() {
+            const sampleEvents = [
+                {
+                    id: 'sample-1',
+                    title: 'Winter Music Festival',
+                    date: '2025-01-15',
+                    startTime: '19:00',
+                    location: 'Islamabad',
+                    price: 2500,
+                    category: 'music',
+                    image: 'linear-gradient(45deg, #ff6b6b, #4ecdc4)'
+                },
+                {
+                    id: 'sample-2',
+                    title: 'Food & Culture Expo',
+                    date: '2025-01-16',
+                    startTime: '14:00',
+                    location: 'Lahore',
+                    price: 1000,
+                    category: 'food',
+                    image: 'linear-gradient(45deg, #a8edea, #fed6e3)'
+                },
+                {
+                    id: 'sample-3',
+                    title: 'Tech Startup Meetup',
+                    date: '2025-01-21',
+                    startTime: '20:00',
+                    location: 'Karachi',
+                    price: 0,
+                    category: 'tech',
+                    image: 'linear-gradient(45deg, #ffecd2, #fcb69f)'
+                },
+                {
+                    id: 'sample-4',
+                    title: 'Art Gallery Opening',
+                    date: '2025-01-25',
+                    startTime: '18:00',
+                    location: 'Lahore',
+                    price: 500,
+                    category: 'art',
+                    image: 'linear-gradient(45deg, #84fab0, #8fd3f4)'
+                }
+            ];
+
+            likedEvents = sampleEvents;
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('likesContent').style.display = 'block';
+            
+            // Update stats
+            document.getElementById('likesCountStat').textContent = likedEvents.length;
+            document.getElementById('likesCountDisplay').textContent = `${likedEvents.length} event${likedEvents.length !== 1 ? 's' : ''}`;
+            
+            renderLikedEvents();
+        }
+
+        // Render liked events in the grid
+        function renderLikedEvents() {
+            const likesGrid = document.getElementById('likesGrid');
+            
+            // Filter events based on current filter
+            const filteredEvents = filterEvents(likedEvents);
+            
+            likesGrid.innerHTML = filteredEvents.map((event, index) => {
+                const eventDate = new Date(event.date);
+                const formattedDate = eventDate.toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric'
+                }).toUpperCase();
+
+                const startTime = event.startTime ? 
+                    new Date(`2000-01-01T${event.startTime}`).toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                    }) : '7:00 PM';
+
+                const priceDisplay = event.price && event.price > 0 ? 
+                    `From PKR ${event.price.toLocaleString()}` : 'Free';
+
+                const categoryBadge = getCategoryBadge(event.category);
+
+                return `
+                    <div class="liked-event" data-category="${event.category || 'other'}" style="animation-delay: ${index * 0.1}s;">
+                        <div class="event-image" style="background: ${event.image || 'linear-gradient(45deg, #ff6b6b, #4ecdc4)'};">
+                            <div class="event-badge">${categoryBadge}</div>
+                            <button class="unlike-btn" onclick="unlikeEvent('${event.id}', event)" title="Remove from likes">
+                                ❤️
+                            </button>
+                        </div>
+                        <div class="event-details">
+                            <div class="event-date">${formattedDate} • ${startTime}</div>
+                            <h3 class="event-title">${event.title}</h3>
+                            <div class="event-location">
+                                📍 ${event.location}
+                            </div>
+                            <div class="event-price">${priceDisplay}</div>
+                        </div>
+                        <div class="event-footer">
+                            <button class="view-event-btn" onclick="viewEvent('${event.id}')">
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Update count display
+            document.getElementById('likesCountDisplay').textContent = `${filteredEvents.length} event${filteredEvents.length !== 1 ? 's' : ''}`;
+        }
+
+        // Get category badge text
+        function getCategoryBadge(category) {
+            const badges = {
+                'music': 'Music',
+                'food': 'Food & Drink',
+                'tech': 'Technology',
+                'art': 'Arts & Culture',
+                'business': 'Business',
+                'sports': 'Sports'
+            };
+            return badges[category] || 'Event';
+        }
+
+        // Filter events based on selected filter
+        function filterEvents(events) {
+            if (currentFilter === 'all') return events;
+            
+            if (currentFilter === 'upcoming') {
+                return events.filter(event => new Date(event.date) > new Date());
+            }
+            
+            return events.filter(event => event.category === currentFilter);
+        }
+
+        // Initialize filter buttons
+        function initializeFilters() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Update current filter
+                    currentFilter = this.dataset.filter;
+                    
+                    // Re-render events
+                    renderLikedEvents();
+                });
+            });
+        }
+
+        // Unlike an event
+        async function unlikeEvent(eventId, clickEvent) {
+            clickEvent.stopPropagation();
+
+            try {
+                // Make API call to unlike event
+                const response = await fetch(`/api/users/likes/${eventId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    // Remove from local array
+                    likedEvents = likedEvents.filter(event => event.id !== eventId);
+                    
+                    // Update stats
+                    document.getElementById('likesCountStat').textContent = likedEvents.length;
+                    
+                    // Re-render or show empty state
+                    if (likedEvents.length === 0) {
+                        document.getElementById('likesContent').style.display = 'none';
+                        document.getElementById('emptyState').style.display = 'block';
+                    } else {
+                        renderLikedEvents();
+                    }
+                    
+                    showNotification('Event removed from likes', 'success');
+                } else {
+                    throw new Error('Failed to unlike event');
+                }
+
+            } catch (error) {
+                console.error('Error unliking event:', error);
+                
+                // For demo purposes, still remove from UI
+                likedEvents = likedEvents.filter(event => event.id !== eventId);
+                document.getElementById('likesCountStat').textContent = likedEvents.length;
+                
+                if (likedEvents.length === 0) {
+                    document.getElementById('likesContent').style.display = 'none';
+                    document.getElementById('emptyState').style.display = 'block';
+                } else {
+                    renderLikedEvents();
+                }
+                showNotification('Event removed from likes (demo)', 'warning');
+            }
+        }
+
+        // View event details
+        function viewEvent(eventId) {
+            console.log('Viewing event:', eventId);
+            showNotification('Event details page coming soon!', 'info');
+        }
+
+        // Profile dropdown functions (copied from index.html)
+        let dropdownOpen = false;
+
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            if (dropdownOpen) {
+                closeProfileDropdown();
+            } else {
+                openProfileDropdown();
+            }
+        }
+
+        function openProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.add('show');
+            dropdownOpen = true;
+        }
+
+        function closeProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.remove('show');
+            dropdownOpen = false;
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('profileDropdown');
+            const userInfo = document.querySelector('.user-info');
+
+            if (dropdown && !dropdown.contains(event.target) && !userInfo.contains(event.target)) {
+                closeProfileDropdown();
+            }
+        });
+
+        // Handle create event button clicks
+        function handleCreateEvent(event) {
+            event.preventDefault();
+            
+            if (window.authAPI && window.authAPI.isAuthenticated()) {
+                window.location.href = 'event_create.html';
+            } else {
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Logout function
+        async function logout() {
+            try {
+                closeProfileDropdown();
+                
+                if (window.authAPI) {
+                    await window.authAPI.logout();
+                }
+
+                localStorage.removeItem('user');
+                localStorage.removeItem('authToken');
+                sessionStorage.clear();
+
+                showNotification('Successfully logged out', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+
+            } catch (error) {
+                console.error('Error during logout:', error);
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" 
+                            style="background: none; border: none; color: white; font-size: 18px; cursor: pointer; margin-left: 15px;">&times;</button>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+            setTimeout(() => notification.classList.add('show'), 100);
+
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.classList.remove('show');
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, 4000);
+        }
+    </script>
+</body>
+</html>

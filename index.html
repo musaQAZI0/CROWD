@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crowd - Discover Events Near You</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="js/data-manager.js"></script>
+    <script src="js/auth-api.js"></script>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <a href="#" class="logo">crowd</a>
+
+            <div class="search-section">
+                <input type="text" class="search-input" placeholder="Search events">
+                <input type="text" class="location-input" placeholder="Punjab" value="Punjab">
+                <button class="search-btn">🔍</button>
+            </div>
+
+            <!-- Logged Out Navigation -->
+            <div class="nav-links nav-logged-out">
+                <a href="#" class="monetize-link">💰 Monetize</a>
+                <a href="contact_sales.html" class="contact-sales-link">Contact Sales</a>
+                <a href="login.html">Create Events</a>
+                <a href="Help_center.html">Help Center ▾</a>
+                <a href="login.html">Find my tickets</a>
+                <a href="login.html">Log In</a>
+                <a href="signup.html">Sign Up</a>
+            </div>
+
+            <!-- Logged In Navigation -->
+            <div class="nav-links nav-logged-in" style="display: none;">
+                <a href="event_create.html" onclick="handleCreateEvent(event)">+ Create an event</a>
+                <a href="likes.html">♡ Likes</a>
+                <a href="tickets-profile.html">🎫 Tickets</a>
+                <div class="user-profile-container">
+                    <div class="user-info" onclick="toggleProfileDropdown()">
+                        👤 <span id="userEmailDisplay"></span> ▼
+                    </div>
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="dropdown-header">
+                            <div class="user-avatar">👤</div>
+                            <div class="user-details">
+                                <div class="user-name" id="dropdownUserName">User Name</div>
+                                <div class="user-email" id="dropdownUserEmail">user@email.com</div>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="dashboard-home.html" class="dropdown-item">
+                            <span class="dropdown-icon">🏠</span>
+                            Browse events
+                        </a>
+                        <a href="event_create.html" class="dropdown-item" onclick="handleCreateEvent(event)">
+                            <span class="dropdown-icon">📅</span>
+                            Create an event
+                        </a>
+                        <a href="tickets-profile.html" class="dropdown-item">
+                            <span class="dropdown-icon">🎫</span>
+                            Tickets <span class="ticket-count">(0)</span>
+                        </a>
+                        <a href="likes.html" class="dropdown-item">
+                            <span class="dropdown-icon">❤️</span>
+                            Liked
+                        </a>
+                        <a href="dashboard-home.html" class="dropdown-item">
+                            <span class="dropdown-icon">👥</span>
+                            Following
+                        </a>
+                        <a href="dashboard-home.html" class="dropdown-item">
+                            <span class="dropdown-icon">⭐</span>
+                            Interests
+                        </a>
+                        <a href="#" class="dropdown-item monetize-link">
+                            <span class="dropdown-icon">💰</span>
+                            Monetize
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="dashboard-home.html" class="dropdown-item">
+                            <span class="dropdown-icon">⚙️</span>
+                            Account settings
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item logout-item" onclick="logout()">
+                            <span class="dropdown-icon">🚪</span>
+                            Log out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section - Logged Out -->
+    <section class="hero" id="heroLoggedOut">
+        <div class="hero-content">
+            <h1>SEE <span class="hero-highlight">STORIES</span> COME TO LIFE</h1>
+            <button class="hero-btn" onclick="window.location.href='signup.html'">Get Into The Arts</button>
+        </div>
+    </section>
+
+    <!-- Hero Section - Logged In -->
+    <section class="hero-logged-in" id="heroLoggedIn" style="display: none;">
+        <div class="hero-content">
+            <div class="hero-tag">GET INTO IT</div>
+            <h1 class="hero-title">
+                <span class="line1">FROM POP BALLADS</span>
+                <span class="line2">TO EMO ENCORES</span>
+            </h1>
+            <button class="hero-btn" onclick="window.location.href='event_create.html'">Create Your Event</button>
+        </div>
+        <div class="hero-nav">
+            <div class="nav-dot active"></div>
+            <div class="nav-dot"></div>
+            <div class="nav-dot"></div>
+        </div>
+    </section>
+
+    <!-- Categories -->
+    <section class="categories">
+        <div class="container">
+            <div class="category-grid">
+                <div class="category-item">
+                    <div class="category-icon">🎵</div>
+                    <div class="category-name">Music</div>
+                </div>
+                <div class="category-item">
+                    <div class="category-icon">🌙</div>
+                    <div class="category-name">Nightlife</div>
+                </div>
+                <div class="category-item">
+                    <div class="category-icon">🎭</div>
+                    <div class="category-name">Performing & Visual Arts</div>
+                </div>
+                <div class="category-item">
+                    <div class="category-icon">🎄</div>
+                    <div class="category-name">Holidays</div>
+                </div>
+                <div class="category-item">
+                    <div class="category-icon">💕</div>
+                    <div class="category-name">Dating</div>
+                </div>
+                <div class="category-item">
+                    <div class="category-icon">🎮</div>
+                    <div class="category-name">Hobbies</div>
+                </div>
+                <div class="category-item">
+                    <div class="category-icon">💼</div>
+                    <div class="category-name">Business</div>
+                </div>
+                <div class="category-item">
+                    <div class="category-icon">🍽️</div>
+                    <div class="category-name">Food & Drink</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Events Section -->
+    <section class="events-section">
+        <div class="container">
+            <div class="location-selector">
+                <span>📍 Browsing events in</span>
+                <div class="location-indicator">
+                    <div class="live-indicator"></div>
+                    <span>LIVE</span>
+                </div>
+                <select class="location-dropdown">
+                    <option>Federal Capital Territory</option>
+                    <option>Punjab</option>
+                    <option>Sindh</option>
+                    <option>Khyber Pakhtunkhwa</option>
+                </select>
+            </div>
+
+            <div class="filter-tabs">
+                <a href="#" class="filter-tab active">All</a>
+                <a href="#" class="filter-tab">For you</a>
+                <a href="#" class="filter-tab">Online</a>
+                <a href="#" class="filter-tab">Today</a>
+                <a href="#" class="filter-tab">This weekend</a>
+                <a href="#" class="filter-tab">Free</a>
+                <a href="#" class="filter-tab">Music</a>
+                <a href="#" class="filter-tab">Food & Drink</a>
+                <a href="#" class="filter-tab">Charity & Causes</a>
+            </div>
+
+            <h2 class="section-title">Events in Federal Capital Territory</h2>
+
+            <div class="events-grid" id="eventsGrid">
+                <!-- Sample events for demo -->
+                <div class="event-card">
+                    <div class="event-image" style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4);"></div>
+                    <div class="event-details">
+                        <div class="event-date">SAT, JAN 15 • 7:00 PM</div>
+                        <h3 class="event-title">Winter Music Festival</h3>
+                        <div class="event-location">📍 Islamabad</div>
+                        <div class="event-price">From PKR 2,500</div>
+                    </div>
+                </div>
+                <div class="event-card">
+                    <div class="event-image" style="background: linear-gradient(45deg, #a8edea, #fed6e3);"></div>
+                    <div class="event-details">
+                        <div class="event-date">SUN, JAN 16 • 2:00 PM</div>
+                        <h3 class="event-title">Food & Culture Expo</h3>
+                        <div class="event-location">📍 Lahore</div>
+                        <div class="event-price">From PKR 1,000</div>
+                    </div>
+                </div>
+                <div class="event-card">
+                    <div class="event-image" style="background: linear-gradient(45deg, #ffecd2, #fcb69f);"></div>
+                    <div class="event-details">
+                        <div class="event-date">FRI, JAN 21 • 8:00 PM</div>
+                        <h3 class="event-title">Tech Startup Meetup</h3>
+                        <div class="event-location">📍 Karachi</div>
+                        <div class="event-price">Free</div>
+                    </div>
+                </div>
+            </div>
+
+            <a href="#" class="see-more-btn">See more</a>
+        </div>
+    </section>
+
+    <!-- Interest Selection -->
+    <section class="interests-section">
+        <div class="container">
+            <h2 class="section-title">Let's make it personal</h2>
+            <p style="margin-bottom: 40px; color: #6b7280;">Select your interests to get event suggestions based on what
+                you love</p>
+
+            <div class="interests-grid">
+                <div class="interest-tag">Comedy</div>
+                <div class="interest-tag">Food</div>
+                <div class="interest-tag">Education</div>
+                <div class="interest-tag">Pop</div>
+                <div class="interest-tag">Design</div>
+                <div class="interest-tag">R&B</div>
+                <div class="interest-tag">Hip Hop / Rap</div>
+                <div class="interest-tag">Film</div>
+                <div class="interest-tag">Personal health</div>
+                <div class="interest-tag">Blues & Jazz</div>
+                <div class="interest-tag">Travel</div>
+                <div class="interest-tag">Rock</div>
+                <div class="interest-tag">Yoga</div>
+                <div class="interest-tag">Country</div>
+                <div class="interest-tag">Startups & Small Business</div>
+                <div class="interest-tag">Classical</div>
+                <div class="interest-tag">Mental health</div>
+                <div class="interest-tag">TV</div>
+                <div class="interest-tag">Alternative</div>
+                <div class="interest-tag">Musical</div>
+            </div>
+
+            <button class="hero-btn" style="background: #ff5722; color: white;" onclick="showInterestMessage()">See
+                more</button>
+        </div>
+    </section>
+
+    <!-- Popular Cities -->
+    <section class="cities-section">
+        <div class="container">
+            <h2 class="section-title">Top destinations in Pakistan</h2>
+
+            <div class="cities-showcase">
+                <div class="destination-card new-york">
+                    <div class="city-name">Islamabad</div>
+                </div>
+                <div class="destination-card los-angeles">
+                    <div class="city-name">Karachi</div>
+                </div>
+                <div class="destination-card chicago">
+                    <div class="city-name">Lahore</div>
+                </div>
+                <div class="destination-card washington">
+                    <div class="city-name">Rawalpindi</div>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 30px; font-size: 1.5rem;">Popular cities</h3>
+
+            <div class="city-links">
+                <a href="#" class="city-link">Things to do in Islamabad</a>
+                <a href="#" class="city-link">Things to do in Karachi</a>
+                <a href="#" class="city-link">Things to do in Lahore</a>
+                <a href="#" class="city-link">Things to do in Rawalpindi</a>
+                <a href="#" class="city-link">Things to do in Faisalabad</a>
+                <a href="#" class="city-link">Things to do in Multan</a>
+                <a href="#" class="city-link">Things to do in Peshawar</a>
+                <a href="#" class="city-link">Things to do in Quetta</a>
+                <a href="#" class="city-link">Things to do in Sialkot</a>
+                <a href="#" class="city-link">Things to do in Gujranwala</a>
+                <a href="#" class="city-link">Things to do in Sargodha</a>
+                <a href="#" class="city-link">Things to do in Bahawalpur</a>
+                <a href="#" class="city-link">Things to do in Hyderabad</a>
+                <a href="#" class="city-link">Things to do in Sukkur</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Use Crowd</h3>
+                    <a href="#">Create Events</a>
+                    <a href="#">Pricing</a>
+                    <a href="#">Event Marketing Platform</a>
+                    <a href="#">Crowd Mobile Ticket App</a>
+                    <a href="#">Crowd Check-In App</a>
+                    <a href="#">Crowd App Marketplace</a>
+                    <a href="#">Event Registration Software</a>
+                    <a href="#">Community Guidelines</a>
+                    <a href="#">FAQs</a>
+                    <a href="#">Sitemap</a>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Plan Events</h3>
+                    <a href="#">Sell Tickets Online</a>
+                    <a href="#">Performing Arts Ticketing Software</a>
+                    <a href="#">Sell Concert Tickets Online</a>
+                    <a href="#">Event Payment System</a>
+                    <a href="#">Solutions for Professional Services</a>
+                    <a href="#">Event Management Software</a>
+                    <a href="#">Halloween Party Planning</a>
+                    <a href="#">Virtual Events Platform</a>
+                    <a href="#">QR Codes for Event Check-In</a>
+                    <a href="#">Post your event online</a>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Find Events</h3>
+                    <a href="#">Islamabad Food & Drink Events</a>
+                    <a href="#">Karachi Holiday Events</a>
+                    <a href="#">Lahore Music Events</a>
+                    <a href="#">Rawalpindi Hobby Events</a>
+                    <a href="#">Faisalabad Pop Music Events</a>
+                    <a href="#">Islamabad Events</a>
+                    <a href="#">Karachi Events</a>
+                    <a href="#">Events in Lahore Today</a>
+                    <a href="#">Rawalpindi Events</a>
+                    <a href="#">Peshawar Events</a>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Connect With Us</h3>
+                    <a href="contact_sales.html" class="contact-sales-link">Contact Support</a>
+                    <a href="contact_sales.html" class="contact-sales-link">Contact Sales</a>
+                    <a href="#">X</a>
+                    <a href="#">Facebook</a>
+                    <a href="#">LinkedIn</a>
+                    <a href="#">Instagram</a>
+                    <a href="#">TikTok</a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div>© 2025 Crowd</div>
+                <div class="footer-links">
+                    <a href="#">About</a>
+                    <a href="#">Blog</a>
+                    <a href="Help_center.html">Help</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Press</a>
+                    <a href="#">Impact</a>
+                    <a href="#">Investors</a>
+                    <a href="#">Security</a>
+                    <a href="#">Developers</a>
+                    <a href="#">Status</a>
+                    <a href="#">Terms</a>
+                    <a href="#">Privacy</a>
+                    <a href="#">Accessibility</a>
+                    <a href="#">Cookies</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <style>
+        /* Base styles from original */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff5722;
+            text-decoration: none;
+        }
+
+        .search-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            max-width: 500px;
+            margin: 0 2rem;
+        }
+
+        .search-input,
+        .location-input {
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-input {
+            flex: 2;
+        }
+
+        .location-input {
+            flex: 1;
+        }
+
+        .search-input:focus,
+        .location-input:focus {
+            border-color: #ff5722;
+        }
+
+        .search-btn {
+            padding: 12px 16px;
+            background: #ff5722;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #374151;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: #ff5722;
+        }
+
+        /* Smart Contact Sales Link Styling */
+        .contact-sales-link {
+            position: relative;
+        }
+
+        .contact-sales-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #ff5722;
+            transition: width 0.3s ease;
+        }
+
+        .contact-sales-link:hover::after {
+            width: 100%;
+        }
+
+        /* Monetize Link Styling */
+        .monetize-link {
+            position: relative;
+            font-weight: 600;
+            color: #ff5722 !important;
+            background: linear-gradient(135deg, #fff5f0 0%, #ffe0d6 100%);
+            padding: 8px 16px !important;
+            border-radius: 20px;
+            border: 1px solid #ff5722;
+            transition: all 0.3s ease;
+        }
+
+        .monetize-link:hover {
+            background: linear-gradient(135deg, #ff5722 0%, #ff7043 100%);
+            color: white !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 87, 34, 0.3);
+        }
+
+        /* Monetize link in dropdown */
+        .dropdown-item.monetize-link {
+            background: linear-gradient(135deg, #fff5f0 0%, #ffe0d6 100%);
+            border: 1px solid #ff5722;
+            border-radius: 8px;
+            margin: 4px 8px;
+            padding: 8px 12px !important;
+        }
+
+        .dropdown-item.monetize-link:hover {
+            background: linear-gradient(135deg, #ff5722 0%, #ff7043 100%);
+            color: white !important;
+        }
+
+        .dropdown-item.monetize-link:hover .dropdown-icon {
+            color: white;
+        }
+
+        /* User Profile Dropdown Styles */
+        .user-profile-container {
+            position: relative;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: 1px solid #e5e7eb;
+        }
+
+        .user-info:hover {
+            background: #e9ecef;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 280px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+            margin-top: 8px;
+        }
+
+        .profile-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: #ff5722;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 2px;
+        }
+
+        .user-email {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #e5e7eb;
+            margin: 8px 0;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #374151;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background: #f8f9fa;
+        }
+
+        .dropdown-icon {
+            width: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .ticket-count {
+            color: #6b7280;
+            font-size: 14px;
+            margin-left: auto;
+        }
+
+        .logout-item {
+            color: #dc2626;
+            border-top: 1px solid #e5e7eb;
+            margin-top: 8px;
+        }
+
+        .logout-item:hover {
+            background: #fef2f2;
+        }
+
+        /* Hero Section Styles */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 6rem 2rem;
+        }
+
+        .hero-logged-in {
+            background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
+            color: white;
+            text-align: center;
+            padding: 6rem 2rem;
+            position: relative;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            line-height: 1.2;
+        }
+
+        .hero-highlight {
+            color: #ff5722;
+        }
+
+        .hero-btn {
+            background: #ff5722;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .hero-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 87, 34, 0.3);
+        }
+
+        .hero-tag {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 2rem;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            line-height: 1.2;
+        }
+
+        .line1,
+        .line2 {
+            display: block;
+        }
+
+        .hero-nav {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .nav-dot.active {
+            background: white;
+        }
+
+        /* Categories Section */
+        .categories {
+            padding: 4rem 0;
+            background: #f8f9fa;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .category-item {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .category-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .category-name {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        /* Events Section */
+        .events-section {
+            padding: 4rem 0;
+        }
+
+        .location-selector {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .location-dropdown {
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            background: white;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 8px 16px;
+            background: #f3f4f6;
+            color: #6b7280;
+            text-decoration: none;
+            border-radius: 20px;
+            transition: all 0.2s;
+        }
+
+        .filter-tab:hover,
+        .filter-tab.active {
+            background: #ff5722;
+            color: white;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            color: #1f2937;
+        }
+
+        .see-more-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #f3f4f6;
+            color: #374151;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .see-more-btn:hover {
+            background: #e5e7eb;
+        }
+
+        /* Interest Section */
+        .interests-section {
+            padding: 4rem 0;
+            background: #f8f9fa;
+        }
+
+        /* Cities Section */
+        .cities-section {
+            padding: 4rem 0;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1f2937;
+            color: white;
+            padding: 3rem 0 1rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            color: #ff5722;
+        }
+
+        .footer-section a {
+            display: block;
+            color: #d1d5db;
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            transition: color 0.2s;
+        }
+
+        .footer-section a:hover {
+            color: #ff5722;
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 2rem;
+            border-top: 1px solid #374151;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #d1d5db;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #ff5722;
+        }
+
+        /* Additional styles from original */
+        .event-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .event-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .event-image {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .event-details {
+            padding: 16px;
+        }
+
+        .event-date {
+            color: #f97316;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .event-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1f2937;
+        }
+
+        .event-location {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .event-price {
+            color: #1f2937;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .interest-tag {
+            padding: 8px 16px;
+            background: #f3f4f6;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .interest-tag:hover {
+            background: #e5e7eb;
+        }
+
+        .interest-tag.selected {
+            background: #f97316;
+            color: white;
+        }
+
+        .interests-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .destination-card {
+            height: 200px;
+            border-radius: 12px;
+            display: flex;
+            align-items: end;
+            padding: 20px;
+            background-size: cover;
+            background-position: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .cities-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .new-york {
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200"><rect fill="%23667eea" width="300" height="200"/></svg>');
+        }
+
+        .los-angeles {
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200"><rect fill="%23f093fb" width="300" height="200"/></svg>');
+        }
+
+        .chicago {
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200"><rect fill="%234facfe" width="300" height="200"/></svg>');
+        }
+
+        .washington {
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200"><rect fill="%2343e97b" width="300" height="200"/></svg>');
+        }
+
+        .city-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .city-link {
+            color: #f97316;
+            text-decoration: none;
+            padding: 8px 0;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .city-link:hover {
+            border-bottom-color: #f97316;
+        }
+
+        .live-indicator {
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .location-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #ef4444;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Notification System */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 10000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #f44336;
+        }
+
+        .notification.warning {
+            background: #ff9800;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .search-section {
+                margin: 0;
+                max-width: 100%;
+            }
+
+            .hero-content h1,
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .profile-dropdown {
+                width: 260px;
+                right: -20px;
+            }
+
+            .category-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+
+            .events-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+
+    <script>
+        // Global variable to track dropdown state
+        let dropdownOpen = false;
+
+        // Check authentication status on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            updateUIBasedOnAuth();
+            updateContactSalesLinks();
+            loadPublicEvents();
+            setupMonetizeLinks();
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function (event) {
+                const dropdown = document.getElementById('profileDropdown');
+                const userInfo = document.querySelector('.user-info');
+
+                if (dropdown && !dropdown.contains(event.target) && !userInfo.contains(event.target)) {
+                    closeProfileDropdown();
+                }
+            });
+
+            // Track page analytics
+            trackPageView();
+        });
+
+        // Handle create event button clicks
+        function handleCreateEvent(event) {
+            event.preventDefault();
+
+            // Check if user is authenticated
+            if (window.authAPI && window.authAPI.isAuthenticated()) {
+                // User is logged in, redirect to event creation page
+                console.log('Redirecting to event creation page...');
+                trackEvent('Create Event Click', { authenticated: true });
+                window.location.href = 'event_create.html';
+            } else {
+                // User is not logged in, redirect to login
+                console.log('User not authenticated, redirecting to login...');
+                trackEvent('Create Event Click', { authenticated: false });
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Update UI based on authentication status
+        async function updateUIBasedOnAuth() {
+            console.log('🔍 Checking authentication status using backend API...');
+            
+            if (window.authAPI) {
+                console.log('✅ authAPI found');
+                const isAuth = window.authAPI.isAuthenticated();
+                console.log('🔐 Has auth token:', isAuth);
+                
+                if (isAuth) {
+                    try {
+                        const user = await window.authAPI.getCurrentUser();
+                        console.log('👤 Current user from backend:', user);
+                        if (user) {
+                            console.log('✅ Showing logged-in UI for:', user.email);
+                            showLoggedInUI(user);
+                        } else {
+                            console.log('❌ No user data from backend, showing logged-out UI');
+                            showLoggedOutUI();
+                        }
+                    } catch (error) {
+                        console.error('❌ Error getting user from backend:', error);
+                        showLoggedOutUI();
+                    }
+                } else {
+                    console.log('❌ No auth token, showing logged-out UI');
+                    showLoggedOutUI();
+                }
+            } else {
+                console.log('❌ authAPI not found, showing logged-out UI');
+                showLoggedOutUI();
+            }
+        }
+
+        // Show logged-in UI
+        function showLoggedInUI(user) {
+            // Hide logged-out elements
+            document.querySelector('.nav-logged-out').style.display = 'none';
+            document.getElementById('heroLoggedOut').style.display = 'none';
+
+            // Show logged-in elements
+            document.querySelector('.nav-logged-in').style.display = 'flex';
+            document.getElementById('heroLoggedIn').style.display = 'block';
+
+            // Update user displays
+            document.getElementById('userEmailDisplay').textContent = user.email;
+            document.getElementById('dropdownUserEmail').textContent = user.email;
+            document.getElementById('dropdownUserName').textContent = user.name || user.email.split('@')[0];
+
+            // Update contact sales links for authenticated users
+            updateContactSalesLinks(true);
+
+            console.log('User is logged in:', user.email);
+        }
+
+        // Show logged-out UI
+        function showLoggedOutUI() {
+            // Show logged-out elements
+            document.querySelector('.nav-logged-out').style.display = 'flex';
+            document.getElementById('heroLoggedOut').style.display = 'block';
+
+            // Hide logged-in elements
+            document.querySelector('.nav-logged-in').style.display = 'none';
+            document.getElementById('heroLoggedIn').style.display = 'none';
+
+            // Update contact sales links for anonymous users
+            updateContactSalesLinks(false);
+
+            console.log('User is logged out');
+        }
+
+        // Smart contact sales link updater
+        function updateContactSalesLinks(isAuthenticated = null) {
+            // Determine authentication status if not provided
+            if (isAuthenticated === null) {
+                isAuthenticated = window.authAPI && window.authAPI.isAuthenticated();
+            }
+
+            // Get all contact sales links
+            const contactSalesLinks = document.querySelectorAll('.contact-sales-link');
+
+            contactSalesLinks.forEach(link => {
+                // Always point to the dynamic contact_sales.html
+                link.href = 'contact_sales.html';
+
+                // Add click tracking
+                link.addEventListener('click', function () {
+                    trackEvent('Contact Sales Click', {
+                        authenticated: isAuthenticated,
+                        location: this.closest('.nav-links') ? 'navigation' : 'footer'
+                    });
+                });
+
+                // Optional: Add visual indicator for authenticated users
+                if (isAuthenticated) {
+                    link.title = 'Contact Sales (Authenticated)';
+                } else {
+                    link.title = 'Contact Sales';
+                }
+            });
+
+            console.log(`Updated ${contactSalesLinks.length} contact sales links for ${isAuthenticated ? 'authenticated' : 'anonymous'} user`);
+        }
+
+        // Profile dropdown functions
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            if (dropdownOpen) {
+                closeProfileDropdown();
+            } else {
+                openProfileDropdown();
+            }
+        }
+
+        function openProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.add('show');
+            dropdownOpen = true;
+            trackEvent('Profile Dropdown Opened');
+        }
+
+        function closeProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.remove('show');
+            dropdownOpen = false;
+        }
+
+        // Enhanced logout function with proper navigation
+        async function logout() {
+            try {
+                // Close dropdown first
+                closeProfileDropdown();
+
+                // Log the logout action
+                console.log('Logout initiated...');
+                trackEvent('User Logout');
+
+                // Clear authentication data using auth API if available
+                if (window.authAPI) {
+                    await window.authAPI.logout();
+                    console.log('User logged out via auth API');
+                }
+
+                // Clear any additional session storage or local storage if used
+                localStorage.removeItem('user');
+                localStorage.removeItem('authToken');
+                sessionStorage.clear();
+
+                // Immediately update UI to logged-out state
+                showLoggedOutUI();
+
+                // Clear user email display
+                const userEmailDisplay = document.getElementById('userEmailDisplay');
+                if (userEmailDisplay) {
+                    userEmailDisplay.textContent = '';
+                }
+
+                // Reset any selected interests
+                document.querySelectorAll('.interest-tag.selected').forEach(tag => {
+                    tag.classList.remove('selected');
+                });
+
+                // Reset filter tabs to 'All'
+                document.querySelectorAll('.filter-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.querySelector('.filter-tab').classList.add('active');
+
+                // Show success notification
+                showNotification('Successfully logged out', 'success');
+
+                // Scroll to top of page for better user experience
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            } catch (error) {
+                console.error('Error during logout:', error);
+                // Even if there's an error, still show logged-out UI
+                showLoggedOutUI();
+                showNotification('Logged out (with errors)', 'warning');
+            }
+        }
+
+        // Load and display public events
+        function loadPublicEvents() {
+            if (window.dataManager) {
+                const events = window.dataManager.getAllEvents();
+                if (events.length > 0) {
+                    renderEvents(events.slice(0, 6)); // Show first 6 events
+                }
+            }
+        }
+
+        // Render events in the grid
+        function renderEvents(events) {
+            const eventsGrid = document.getElementById('eventsGrid');
+            const existingEvents = eventsGrid.innerHTML;
+
+            // Add real events if available
+            const eventCards = events.map(event => {
+                const eventDate = new Date(event.date);
+                const formattedDate = eventDate.toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric'
+                }).toUpperCase();
+
+                const startTime = event.startTime ? new Date(`2000-01-01T${event.startTime}`).toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                }) : '7:00 PM';
+
+                const minPrice = event.tickets && event.tickets.length > 0
+                    ? Math.min(...event.tickets.filter(t => t.price > 0).map(t => t.price))
+                    : 0;
+
+                return `
+                    <div class="event-card" onclick="viewEvent('${event.id}')">
+                        <div class="event-image" style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4);"></div>
+                        <div class="event-details">
+                            <div class="event-date">${formattedDate} • ${startTime}</div>
+                            <h3 class="event-title">${event.title}</h3>
+                            <div class="event-location">📍 ${event.location || event.venue || 'TBA'}</div>
+                            <div class="event-price">${minPrice > 0 ? 'From PKR ' + minPrice : 'Free'}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Prepend real events to existing sample events
+            if (eventCards) {
+                eventsGrid.innerHTML = eventCards + existingEvents;
+            }
+        }
+
+        // Handle event card clicks
+        function viewEvent(eventId) {
+            trackEvent('Event Card Clicked', { eventId: eventId });
+
+            // For now, redirect to login if not authenticated
+            if (!window.authAPI || !window.authAPI.isAuthenticated()) {
+                showNotification('Please log in to view event details', 'warning');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+            } else {
+                // In a real app, this would navigate to event details page
+                console.log('Viewing event:', eventId);
+                showNotification('Event details page coming soon!', 'info');
+            }
+        }
+
+        // Handle interest selection
+        function showInterestMessage() {
+            if (!window.authAPI || !window.authAPI.isAuthenticated()) {
+                trackEvent('Interest Selection Attempted', { authenticated: false });
+                showNotification('Please sign up to customize your interests', 'warning');
+                setTimeout(() => {
+                    window.location.href = 'signup.html';
+                }, 1500);
+            } else {
+                trackEvent('Interest Selection Attempted', { authenticated: true });
+                showNotification('Interest customization coming soon!', 'info');
+            }
+        }
+
+        // Interest tag selection
+        document.addEventListener('click', function (e) {
+            if (e.target.classList.contains('interest-tag')) {
+                const isAuthenticated = window.authAPI && window.authAPI.isAuthenticated();
+
+                if (isAuthenticated) {
+                    e.target.classList.toggle('selected');
+                    trackEvent('Interest Tag Selected', {
+                        interest: e.target.textContent,
+                        selected: e.target.classList.contains('selected')
+                    });
+                } else {
+                    showNotification('Please log in to select interests', 'warning');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 1500);
+                }
+            }
+        });
+
+        // Category item clicks
+        document.addEventListener('click', function (e) {
+            if (e.target.closest('.category-item')) {
+                const categoryName = e.target.closest('.category-item').querySelector('.category-name').textContent;
+                trackEvent('Category Selected', { category: categoryName });
+                console.log('Selected category:', categoryName);
+                showNotification(`Filtering by ${categoryName} coming soon!`, 'info');
+            }
+        });
+
+        // Search functionality
+        document.addEventListener('keypress', function (e) {
+            if (e.target.classList.contains('search-input') && e.key === 'Enter') {
+                const searchTerm = e.target.value.trim();
+                if (searchTerm) {
+                    trackEvent('Search Performed', { query: searchTerm });
+                    console.log('Searching for:', searchTerm);
+                    showNotification('Search functionality coming soon!', 'info');
+                }
+            }
+        });
+
+        // Search button click
+        document.querySelector('.search-btn').addEventListener('click', function () {
+            const searchTerm = document.querySelector('.search-input').value.trim();
+            if (searchTerm) {
+                trackEvent('Search Button Clicked', { query: searchTerm });
+                console.log('Searching for:', searchTerm);
+                showNotification('Search functionality coming soon!', 'info');
+            }
+        });
+
+        // Filter tab clicks
+        document.addEventListener('click', function (e) {
+            if (e.target.classList.contains('filter-tab')) {
+                e.preventDefault();
+
+                // Remove active class from all tabs
+                document.querySelectorAll('.filter-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+
+                // Add active class to clicked tab
+                e.target.classList.add('active');
+
+                const filterType = e.target.textContent.trim();
+                trackEvent('Filter Applied', { filter: filterType });
+                console.log('Applied filter:', filterType);
+
+                // Handle "For you" filter
+                if (filterType === 'For you' && (!window.authAPI || !window.authAPI.isAuthenticated())) {
+                    showNotification('Please log in for personalized recommendations', 'warning');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 1500);
+                } else {
+                    showNotification(`Filtering by ${filterType} coming soon!`, 'info');
+                }
+            }
+        });
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            // Remove existing notifications
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer; margin-left: 15px;">&times;</button>
+                </div>
+            `;
+
+            // Add to page
+            document.body.appendChild(notification);
+
+            // Show notification
+            setTimeout(() => notification.classList.add('show'), 100);
+
+            // Auto remove after 4 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.classList.remove('show');
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, 4000);
+        }
+
+        // Analytics and tracking
+        function trackEvent(eventName, eventData = {}) {
+            const trackingData = {
+                event: eventName,
+                timestamp: new Date().toISOString(),
+                page: 'index',
+                userAuthenticated: window.authAPI && window.authAPI.isAuthenticated(),
+                ...eventData
+            };
+
+            console.log('📊 Event tracked:', trackingData);
+
+            // Here you would integrate with your analytics service
+            // Example: gtag('event', eventName, eventData);
+            // Example: analytics.track(eventName, trackingData);
+        }
+
+        function trackPageView() {
+            trackEvent('Page View', {
+                referrer: document.referrer || 'direct',
+                userAgent: navigator.userAgent
+            });
+        }
+
+        // Debug function to check data manager
+        function checkDataManager() {
+            console.log('🔧 Data Manager available:', !!window.dataManager);
+            console.log('🔧 User authenticated:', window.authAPI ? window.authAPI.isAuthenticated() : false);
+            if (window.authAPI && window.authAPI.isAuthenticated()) {
+                console.log('🔧 Current user:', window.dataManager.getCurrentUser());
+            }
+        }
+
+        // Auto-check after delay to ensure data manager is loaded
+        setTimeout(checkDataManager, 1000);
+
+        // Handle page visibility changes (user returns to tab)
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) {
+                // Page became visible, refresh auth status
+                updateUIBasedOnAuth();
+            }
+        });
+
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', function () {
+            updateUIBasedOnAuth();
+        });
+
+        // Setup monetize links functionality
+        function setupMonetizeLinks() {
+            const monetizeLinks = document.querySelectorAll('.monetize-link');
+            
+            monetizeLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    handleMonetizeClick();
+                });
+            });
+        }
+
+        // Handle monetize link clicks
+        function handleMonetizeClick() {
+            const isAuthenticated = window.authAPI && window.authAPI.isAuthenticated();
+            
+            trackEvent('Monetize Link Clicked', { 
+                authenticated: isAuthenticated,
+                location: event.target.closest('.nav-logged-out') ? 'navigation' : 'dropdown'
+            });
+
+            // Redirect to monetization page
+            if (isAuthenticated) {
+                window.location.href = 'monetize.html';
+            } else {
+                showNotification('Join CROWD as a partner! Sign up to access monetization opportunities for influencers and venues.', 'info');
+                setTimeout(() => {
+                    window.location.href = 'signup.html';
+                }, 2000);
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function (e) {
+            // Escape to close dropdown
+            if (e.key === 'Escape') {
+                closeProfileDropdown();
+            }
+
+            // Ctrl/Cmd + K for search focus
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.querySelector('.search-input').focus();
+            }
+        });
+
+        // Performance monitoring
+        window.addEventListener('load', function () {
+            setTimeout(() => {
+                const perfData = performance.timing;
+                const loadTime = perfData.loadEventEnd - perfData.navigationStart;
+
+                trackEvent('Page Performance', {
+                    loadTime: loadTime,
+                    domContentLoaded: perfData.domContentLoadedEventEnd - perfData.navigationStart
+                });
+            }, 0);
+        });
+    </script>
+</body>
+
+</html>

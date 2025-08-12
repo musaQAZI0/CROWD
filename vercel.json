@@ -12,8 +12,21 @@
       "dest": "/api/index.js"
     },
     {
+      "src": "/(.*\\.(css|js|html|png|jpg|jpeg|gif|svg|ico|json|pdf|txt))",
+      "dest": "/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/api/index.js"
     }
-  ]
+  ],
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 30,
+      "memory": 1024
+    }
+  },
+  "env": {
+    "NODE_ENV": "production"
+  }
 }

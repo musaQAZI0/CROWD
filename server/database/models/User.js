@@ -76,7 +76,8 @@ const userSchema = new mongoose.Schema({
   teamMembers: [{ type: mongoose.Schema.Types.Mixed }],
   teamRoles: [teamRoleSchema],
   teamInvitations: [{ type: mongoose.Schema.Types.Mixed }],
-  organizationId: { type: String, default: null }
+  organizationId: { type: String, default: null },
+  isAdmin: { type: Boolean, default: false }
 }, {
   timestamps: true,
   collection: 'users'

@@ -31,7 +31,28 @@ const eventSchema = new mongoose.Schema({
     quantity: Number,
     sold: { type: Number, default: 0 },
     description: String
-  }]
+  }],
+  // Additional event details for preview
+  startTime: { type: String }, // Format: "HH:MM"
+  endTime: { type: String },   // Format: "HH:MM"
+  timezone: { type: String, default: 'UTC' },
+  overviewDescription: { type: String },
+  whyAttend: { type: String },
+  howToParticipate: { type: String },
+  closingMessage: { type: String },
+  publishedAt: { type: Date },
+  // Organizer profile info
+  organizerProfile: {
+    bio: { type: String },
+    avatar: { type: String },
+    socialLinks: {
+      website: { type: String },
+      twitter: { type: String },
+      facebook: { type: String },
+      instagram: { type: String },
+      linkedin: { type: String }
+    }
+  }
 }, {
   timestamps: true,
   collection: 'events'

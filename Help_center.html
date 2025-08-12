@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crowd Help Center</title>
+    <link rel="stylesheet" href="Help_center.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo">C</div>
+                <span class="brand-name">Crowd</span>
+                <span class="help-text">Help Center</span>
+            </div>
+            <div class="loading-spinner"></div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Search Section -->
+        <section class="search-section">
+            <h1 class="search-title">How can we help?</h1>
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Search help articles" class="search-input">
+                </div>
+            </div>
+        </section>
+
+        <!-- Tabs -->
+        <section class="tabs-section">
+            <div class="tab-buttons">
+                <button class="tab-button active" data-tab="attending">Attending an event</button>
+                <button class="tab-button" data-tab="organizing">Organizing an event</button>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Get Help Faster -->
+                <div class="help-faster-card">
+                    <div class="help-faster-content">
+                        <div class="user-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <div class="help-text-content">
+                            <h3>Get help faster</h3>
+                            <p>Log in for resources tailored to your account, tickets, and events.</p>
+                        </div>
+                        <button class="login-button">Log in</button>
+                    </div>
+                </div>
+
+                <!-- Featured Articles -->
+                <div class="featured-section">
+                    <h2>Featured articles</h2>
+                    <div class="articles-grid" id="articlesGrid">
+                        <!-- Articles will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Browse by Topic -->
+        <section class="topics-section">
+            <h2>Browse by topic</h2>
+            <div class="topics-grid">
+                <div class="topic-card">
+                    <div class="topic-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                    </div>
+                    <span>Buy and register</span>
+                </div>
+                <div class="topic-card">
+                    <div class="topic-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14,2 14,8 20,8"></polyline>
+                        </svg>
+                    </div>
+                    <span>Your tickets</span>
+                </div>
+                <div class="topic-card">
+                    <div class="topic-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <span>Your account</span>
+                </div>
+                <div class="topic-card">
+                    <div class="topic-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14,2 14,8 20,8"></polyline>
+                        </svg>
+                    </div>
+                    <span>Terms and policies</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Still Have Questions -->
+        <section class="questions-section">
+            <h3>Still have questions?</h3>
+            <button class="contact-button">Contact Support</button>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-columns">
+                <div class="footer-column">
+                    <h4>Use Crowd</h4>
+                    <ul>
+                        <li><a href="#">Create events</a></li>
+                        <li><a href="#">Community Guidelines</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">Pricing Calculator</a></li>
+                        <li><a href="#">Site status</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Download apps</h4>
+                    <ul>
+                        <li><a href="#">Crowd app for Android</a></li>
+                        <li><a href="#">Crowd app for iOS</a></li>
+                        <li><a href="#">Crowd Organizer app</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Browse resources</h4>
+                    <ul>
+                        <li><a href="#">Organizer Resource Hub</a></li>
+                        <li><a href="#">Virtual sessions for organizers</a></li>
+                        <li><a href="#">Taxes</a></li>
+                        <li><a href="#">Webinars for new organizers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Connect with us</h4>
+                    <ul>
+                        <li><a href="#">Contact support</a></li>
+                        <li><a href="#">Facebook</a></li>
+                        <li><a href="#">Instagram</a></li>
+                        <li><a href="#">Twitter</a></li>
+                        <li><a href="#">TikTok</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="copyright">© 2025 Crowd</div>
+                <div class="footer-links">
+                    <a href="#">About</a>
+                    <a href="#">Blog</a>
+                    <a href="#">Help</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Press</a>
+                    <a href="#">Security</a>
+                    <a href="#">Developers</a>
+                    <a href="#">Terms</a>
+                    <a href="#">Privacy</a>
+                    <a href="#">Accessibility</a>
+                    <a href="#">Cookies</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="Help_center.js"></script>
+</body>
+
+</html>

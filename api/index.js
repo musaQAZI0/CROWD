@@ -90,6 +90,18 @@ app.use('/api/finance', financeRoutes);
 const appsRoutes = require('../server/routes/apps');
 app.use('/api/apps', appsRoutes);
 
+const collectionsRoutes = require('../server/routes/collections');
+app.use('/api/collections', collectionsRoutes);
+
+const monetizeRoutes = require('../server/routes/monetize');
+app.use('/api/monetize', monetizeRoutes);
+
+const eventsRoutes = require('../server/routes/events');
+app.use('/api/events', eventsRoutes);
+
+const likesRoutes = require('../server/routes/likes');
+app.use('/api/likes', likesRoutes);
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
